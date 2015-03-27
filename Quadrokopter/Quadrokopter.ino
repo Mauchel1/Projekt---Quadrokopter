@@ -20,11 +20,11 @@ map(value, fromLow, fromHigh, toLow, toHigh)
 #include <Wire.h> // für Accelerometer
 
 //**************DEBUGGING*************** 
-  #define debug // um debugging generell einzuschalten
+//  #define debug // um debugging generell einzuschalten
 //  #define acc_debug // serielle ausgabe accelerometer/gyroskop
 //  #define acc_stabil_debug // serielle ausgabe stabile acc/gyro
 //  #define rxtx_debug //Ferbedienung - empfangene daten
-  #define motor_debug //die 4 Motorwerte, die rausgehen
+//  #define motor_debug //die 4 Motorwerte, die rausgehen
 //  #define winkel_debug // die beiden Sollwinkel und die vorhandenen winkel x,y
 
 //*****************DEKLARATIONEN*****************
@@ -99,8 +99,7 @@ void loop(){
     
 // ***********Motor setzen************
     analogWrite(MOTOR1, motor_1_wert);
-    Mot1.write(motor_2_wert);
-//    analogWrite(MOTOR2, motor_2_wert);
+    analogWrite(MOTOR2, motor_2_wert);
     analogWrite(MOTOR3, motor_3_wert);
     analogWrite(MOTOR4, motor_4_wert);
 }
