@@ -22,7 +22,7 @@ function varargout = GUI(varargin)
 
 % Edit the above text to modify the response to help GUI
 
-% Last Modified by GUIDE v2.5 29-Jun-2015 18:09:18
+% Last Modified by GUIDE v2.5 23-Jul-2015 21:35:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -143,7 +143,7 @@ end
 
 
 % --- Executes on slider movement.
-function Nicken_Slider_Callback(hObject, eventdata, handles)
+function Nicken_Slider_Callback(hObject, ~, handles)
 % hObject    handle to Nicken_Slider (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -158,7 +158,7 @@ Diagramm2_aktualisieren(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function Nicken_Slider_CreateFcn(hObject, eventdata, handles)
+function Nicken_Slider_CreateFcn(hObject, ~, ~)
 % hObject    handle to Nicken_Slider (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
@@ -253,7 +253,8 @@ title('Positionen');
 xlabel('Drehung');
 ylabel('Schub');
 xlim([-90 90]);
-ylim([0 255]);
+ylim([0 1023]);
+Serial_Send(hObject, handles);
 
 function Diagramm2_aktualisieren(hObject, handles)
 axes(handles.Diagramm2);
@@ -267,3 +268,48 @@ xlabel('Kippen');
 ylabel('Nicken');
 xlim([-90 90]);
 ylim([-90 90]);
+Serial_Send(hObject, handles);
+
+function Serial_Send(hObject, handles)
+% Schreiben an die Schnittstelle 
+s = serial('COM8');
+set(s, 'BaudRate', 38400); 
+set(s, 'DataBits', 8); 
+% set(s, 'FlowControl', 'hardware'); 
+% set(s, 'Parity', 'even'); 
+% set(s, 'StopBits', 1 ); 
+% set(s, 'Terminator', 'CR'); 
+% set(s, 'InputBufferSize', 1024); 
+
+if (get(handles.Stop_Slider,'Value') == 1) %% wenn Serial an
+    fopen(s); 
+    set(handles.text15,'String', 'AN');   
+    fwrite(s, round(get(handles.Schub_Slider,'Value')), 'uint8'); %hinschreiben
+    set(handles.text10,'String', (round(get(handles.Schub_Slider,'Value'))));
+    set(handles.text12,'String', fread(s,3));  % zurücklesen
+    fclose(s); 
+    delete(s);
+    clear s;
+    set(handles.text15,'String', 'AUS');   
+end
+
+% --- Executes on slider movement.
+function Stop_Slider_Callback(hObject, eventdata, handles)
+% hObject    handle to Stop_Slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+   
+
+% --- Executes during object creation, after setting all properties.
+function Stop_Slider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Stop_Slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
