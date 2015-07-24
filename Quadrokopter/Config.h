@@ -6,21 +6,21 @@
   #define MOTOR4 7 //PIN
   #define MOTOR_STOP 0
   #define EINSCHALTSPEED 25
-  #define SENSIBEL_NICK 8 // je näher gegen 1 desto stärkere Reaktion
+  #define SENSIBEL_NICK 8 // je näher gegen 1 desto stärkere Raktion
   #define SENSIBEL_KIPP 8
   #define SENSIBEL_DREH 8
 //FERNBEDIENUNGSDATEN
   #define FB_0_MIN 0
-  #define FB_0_MAX 1023
+  #define FB_0_MAX 250
   #define FB_1_MIN 0
-  #define FB_1_MAX 1023
+  #define FB_1_MAX 250
   #define FB_2_MIN 0
-  #define FB_2_MAX 1023
+  #define FB_2_MAX 250
   #define FB_3_MIN 0
-  #define FB_3_MAX 1023
+  #define FB_3_MAX 250
 //KORREKTURDATEN
   #define SCHUB_MIN 0
-  #define SCHUB_MAX 180
+  #define SCHUB_MAX 1023
   #define NICK_MIN -50
   #define NICK_MAX 50
   #define KIPP_MIN -50
