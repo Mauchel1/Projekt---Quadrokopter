@@ -145,6 +145,8 @@ function Stop_Slider_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+while 1
+    
 
 
 % --- Executes during object creation, after setting all properties.
