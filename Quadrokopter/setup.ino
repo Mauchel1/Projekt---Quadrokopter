@@ -6,14 +6,18 @@ void setup_RxTx(){
 }
 
 void setup_motor(){ 
-    pinMode(MOTOR1,OUTPUT); 
-    pinMode(MOTOR2,OUTPUT);
-    pinMode(MOTOR3,OUTPUT);
-    pinMode(MOTOR4,OUTPUT);
-    analogWrite(MOTOR1, MOTOR_STOP);
-    analogWrite(MOTOR2, MOTOR_STOP);
-    analogWrite(MOTOR3, MOTOR_STOP);
-    analogWrite(MOTOR4, MOTOR_STOP);
+    motor_1.attach(MOTOR1);
+    motor_2.attach(MOTOR2);
+    motor_3.attach(MOTOR3);
+    motor_4.attach(MOTOR4);
+//    pinMode(MOTOR1,OUTPUT); 
+//    pinMode(MOTOR2,OUTPUT);
+//    pinMode(MOTOR3,OUTPUT);
+//    pinMode(MOTOR4,OUTPUT);
+//    analogWrite(MOTOR1, MOTOR_STOP);
+//    analogWrite(MOTOR2, MOTOR_STOP);
+//    analogWrite(MOTOR3, MOTOR_STOP);
+//    analogWrite(MOTOR4, MOTOR_STOP);
 }
 
 void setup_accelgyro(){

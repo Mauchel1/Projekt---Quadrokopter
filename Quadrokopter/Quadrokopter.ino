@@ -12,6 +12,8 @@ map(value, fromLow, fromHigh, toLow, toHigh)
 #include <RF24_config.h> // für RX/TX
 #include <SPI.h>  // für RX/TX
 
+#include <Servo.h> //für Motoren
+
 #include "Config.h" // defines
 #include "math.h"
 
@@ -19,13 +21,20 @@ map(value, fromLow, fromHigh, toLow, toHigh)
 #include <MPU6050.h> // Accelerometer
 #include <Wire.h> // für Accelerometer
 
+//**************TESTFUNKTIONEN*************
+// unten im Code im Mainloop einschalten (RX/TX)
+// Fernbedienung_Poti(); // Nimmt die Fernbedienungsdaten ohne Senden+Empfangen aus Poti entgegen
+
 //**************DEBUGGING*************** 
-//  #define debug // um debugging generell einzuschalten
+  #define debug // um debugging generell einzuschalten
+
 //  #define acc_debug // serielle ausgabe accelerometer/gyroskop
 //  #define acc_stabil_debug // serielle ausgabe stabile acc/gyro
-//  #define rxtx_debug //Ferbedienung - empfangene daten
+//  #define rxtx_debug //Fernbedienung - empfangene daten
 //  #define motor_debug //die 4 Motorwerte, die rausgehen
 //  #define winkel_debug // die beiden Sollwinkel und die vorhandenen winkel x,y
+
+  #define seriell_Fernbedienung // Serielles Empfangen der Fernbedienungsdaten
 
 //*****************DEKLARATIONEN*****************
 //Accelerometer
@@ -45,6 +54,11 @@ map(value, fromLow, fromHigh, toLow, toHigh)
   float zACCskaliert;
 
 //Motor
+  Servo motor_1;
+  Servo motor_2;
+  Servo motor_3;
+  Servo motor_4;  
+
   int motor_1_wert;
   int motor_2_wert;
   int motor_3_wert;
@@ -86,8 +100,16 @@ void loop(){
     // accelgyro.getRotation(&gx, &gy, &gz);
     
 // **************RX/TX****************
-    empfangen();
-
+    #ifndef seriell_Fernbedienung
+        empfangen();    
+    #endif     
+    
+    //Fernbedienung_Poti(); //Muss auskommentiert sein im Flugmodus
+   
+    #ifdef seriell_Fernbedienung
+        serielle_Fernbedienung();
+    #endif     
+    
 // *************Berechnung************
     acc_stabilisieren();
     berechnen();
@@ -98,10 +120,14 @@ void loop(){
     #endif
     
 // ***********Motor setzen************
-    analogWrite(MOTOR1, motor_1_wert);
-    analogWrite(MOTOR2, motor_2_wert);
-    analogWrite(MOTOR3, motor_3_wert);
-    analogWrite(MOTOR4, motor_4_wert);
+    motor_1.write(motor_1_wert);
+    motor_2.write(motor_2_wert);
+    motor_3.write(motor_3_wert);
+    motor_4.write(motor_4_wert);
+//    analogWrite(MOTOR1, motor_1_wert);
+//    analogWrite(MOTOR2, motor_2_wert);
+//    analogWrite(MOTOR3, motor_3_wert);
+//    analogWrite(MOTOR4, motor_4_wert);
 }
 
 void empfangen(){
@@ -117,6 +143,15 @@ void empfangen(){
   else {    
      //TODO
   }
+}
+
+void serielle_Fernbedienung(){
+    fernbedienung[1] = Serial.read();
+    Serial.print(fernbedienung[1]);
+}
+
+void Fernbedienung_Poti(){
+   fernbedienung[1] = analogRead(A1);
 }
 
 void acc_stabilisieren(){
@@ -163,10 +198,10 @@ void berechnen(){
     drehkorrekt = map(fernbedienung[0], FB_0_MIN, FB_0_MAX, DREH_MIN, DREH_MAX);// SENSIBEL_DREH;
     
     if (schub > EINSCHALTSPEED){
-        motor_1_wert = fernbedienung[1] - nickkorrekt + kippkorrekt + drehkorrekt;
-        motor_2_wert = fernbedienung[1] - nickkorrekt - kippkorrekt - drehkorrekt;
-        motor_3_wert = fernbedienung[1] + nickkorrekt + kippkorrekt - drehkorrekt;
-        motor_4_wert = fernbedienung[1] + nickkorrekt - kippkorrekt + drehkorrekt;
+        motor_1_wert = schub; //- nickkorrekt + kippkorrekt + drehkorrekt;
+        motor_2_wert = schub; //- nickkorrekt - kippkorrekt - drehkorrekt;
+        motor_3_wert = schub; //+ nickkorrekt + kippkorrekt - drehkorrekt;
+        motor_4_wert = schub; //+ nickkorrekt - kippkorrekt + drehkorrekt;
     }
     else {
         motor_1_wert = MOTOR_STOP;

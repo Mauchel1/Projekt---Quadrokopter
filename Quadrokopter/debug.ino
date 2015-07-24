@@ -7,7 +7,7 @@ void debugging(){
         Serial.print(az); Serial.print("\t");
         Serial.print(gx); Serial.print("\t");
         Serial.print(gy); Serial.print("\t");
-        Serial.println(gz);
+        Serial.print(gz); Serial.print("\t\n");
     #endif
     #ifdef acc_stabil_debug 
         Serial.print("a/g:\t");  // display tab-separated accel/gyro x/y/z values
