@@ -1,3 +1,11 @@
+% Dieses Skript erzeugt eine GUI, mithilfe derer man via Serieller
+% Schnittstelle die Fernbedienung des Quadrokopters simulieren kann. 
+%
+% Um dieses Skript laufen zu lassen, muss in dem Arduinoprogramm
+% "Quadrokopter" NUR der debuggingmodus der Seriellen Fernbedienung
+% eingeschaltet sein
+%
+
 function varargout = GUI(varargin)
 %GUI M-file for GUI.fig
 %      GUI, by itself, creates a new GUI or raises the existing

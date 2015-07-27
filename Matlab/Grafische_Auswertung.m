@@ -1,3 +1,11 @@
+% Dieses Skript erzeugt eine GUI, mithilfe derer man via Serieller
+% Schnittstelle die Daten des Accelerometers angucken kann. 
+%
+% Um dieses Skript laufen zu lassen, muss in dem Arduinoprogramm
+% "Quadrokopter" NUR der debuggingmodus des Accelerometers
+% eingeschaltet sein
+%
+
 function varargout = Grafische_Auswertung(varargin)
 % GRAFISCHE_AUSWERTUNG MATLAB code for Grafische_Auswertung.fig
 %      GRAFISCHE_AUSWERTUNG, by itself, creates a new GRAFISCHE_AUSWERTUNG or raises the existing
@@ -94,11 +102,11 @@ while i > 0
 
     % S_Data = char(Serial_Data); % zeigt die Daten in ASCII an (als char)
     axes(handles.Accel);
-    erste_Daten = find(Serial_Data == 58)  %Das : suchen, danach kommen die neuen Daten
+    erste_Daten = find(Serial_Data == 58);  %Das : suchen, danach kommen die neuen Daten
     
-    Serial_Data = Serial_Data(erste_Daten(1):70) % Daten anpassen, sodass nach dem ersten Tab auch immer der erste Wert kommt
+    Serial_Data = Serial_Data(erste_Daten(1):70); % Daten anpassen, sodass nach dem ersten Tab auch immer der erste Wert kommt
     
-    neue_Daten = find(Serial_Data == 9) % alle tabs raussuchen, nach jedem Tab kommen neue werte
+    neue_Daten = find(Serial_Data == 9); % alle tabs raussuchen, nach jedem Tab kommen neue werte
 
     Data = ([ 
     str2num(char(Serial_Data((neue_Daten(1)+1):(neue_Daten(2)-1)))'),
@@ -145,8 +153,7 @@ function Stop_Slider_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-while 1
-    
+ 
 
 
 % --- Executes during object creation, after setting all properties.
