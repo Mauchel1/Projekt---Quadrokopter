@@ -146,8 +146,26 @@ void empfangen(){
 }
 
 void serielle_Fernbedienung(){
-    fernbedienung[1] = Serial.read();
-    Serial.print(fernbedienung[1]);
+    if ( Serial.available() > 0 ) 
+    {
+         static char input[16]={0};
+         static uint8_t i=0;
+         char c = Serial.read();
+        
+         if ( c >= '0' && c <= '9' && i < 15 ) 
+           input[i++] = c;
+           
+         else
+         {
+           input[i] = '\0';
+           i = 0;
+             
+           fernbedienung[1] = atoi(input);
+           Serial.print(fernbedienung[1]);
+    Serial.print('a');
+         }
+    
+    }
 }
 
 void Fernbedienung_Poti(){

@@ -272,26 +272,35 @@ Serial_Send(hObject, handles);
 
 function Serial_Send(hObject, handles)
 % Schreiben an die Schnittstelle 
-s = serial('COM8');
-set(s, 'BaudRate', 38400); 
-set(s, 'DataBits', 8); 
-% set(s, 'FlowControl', 'hardware'); 
-% set(s, 'Parity', 'even'); 
-% set(s, 'StopBits', 1 ); 
-% set(s, 'Terminator', 'CR'); 
-% set(s, 'InputBufferSize', 1024); 
-
 if (get(handles.Stop_Slider,'Value') == 1) %% wenn Serial an
-    fopen(s); 
-    set(handles.text15,'String', 'AN');   
-    fwrite(s, round(get(handles.Schub_Slider,'Value')), 'uint8'); %hinschreiben
-    set(handles.text10,'String', (round(get(handles.Schub_Slider,'Value'))));
-    set(handles.text12,'String', fread(s,3));  % zurücklesen
-    fclose(s); 
-    delete(s);
-    clear s;
-    set(handles.text15,'String', 'AUS');   
+    Werte_Serial(hObject, handles);
+    handles = guidata(hObject);
+    fwrite(handles.s, handles.Serialsend(1,:), 'uint8'); %hinschreiben
+    fwrite(handles.s, 'a', 'uint8'); %hinschreiben
+    set(handles.text10,'String', handles.Serialsend(1,:));
+    
+    i = 1;
+    Sread = num2str(zeros(7,1));
+    buffer = 0;
+    while (buffer ~= 'a' && i <= 7)
+    buffer = fread(handles.s,1);    
+    Sread(i) = buffer;          % zurücklesen
+    i = i+1;
+    end
+    Sread = Sread'
+    set(handles.text12,'String', Sread(1,:));  
 end
+
+function Werte_Serial(hObject,handles)
+    Ssend = zeros(4,1);
+    Ssend(1) = round(get(handles.Schub_Slider,  'Value'));
+    Ssend(2) = round(get(handles.Drehung_Slider,'Value'));
+    Ssend(3) = round(get(handles.Kippen_Slider, 'Value'));
+    Ssend(4) = round(get(handles.Nicken_Slider, 'Value'));
+    
+    handles.Serialsend = num2str(Ssend);
+    
+    guidata(hObject,handles);   
 
 % --- Executes on slider movement.
 function Stop_Slider_Callback(hObject, eventdata, handles)
@@ -301,7 +310,24 @@ function Stop_Slider_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-   
+if (get(handles.Stop_Slider,'Value') == 1) %% wenn Serial an
+    handles.s = serial('COM8');
+    set(handles.s, 'BaudRate', 38400); 
+    set(handles.s, 'DataBits', 8); 
+    % set(s, 'FlowControl', 'hardware'); 
+    % set(s, 'Parity', 'even'); 
+    % set(s, 'StopBits', 1 ); 
+    % set(s, 'Terminator', 'CR'); 
+    % set(s, 'InputBufferSize', 1024);     
+    fopen(handles.s); 
+    set(handles.text15,'String', 'AN');   
+elseif (get(handles.Stop_Slider,'Value') == 0) %% wenn Serial aus
+    fclose(handles.s); 
+    set(handles.text15,'String', 'AUS');   
+    delete(handles.s);
+    clear handles.s;
+end
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function Stop_Slider_CreateFcn(hObject, eventdata, handles)
