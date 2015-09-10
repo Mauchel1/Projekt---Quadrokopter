@@ -16,7 +16,7 @@ void debugging(){
         Serial.print(azstabil); Serial.print("\t");
         Serial.print(gxstabil); Serial.print("\t");
         Serial.print(gystabil); Serial.print("\t");
-        Serial.println(gzstabil);
+        Serial.print(gzstabil); Serial.print("\t\n");
     #endif
     #ifdef rxtx_debug  
         if ( radio.available() ){
@@ -55,4 +55,13 @@ void debugging(){
         Serial.print("\t");
         Serial.println(winkel[1]);
     #endif
+    #ifdef korrekt_debug  
+        Serial.print("Nickkorrekt = ");      
+        Serial.print(nickkorrekt);
+        Serial.print("\tKippkorrekt = ");
+        Serial.print(kippkorrekt);
+        Serial.print("\tDrehkorrekt = ");
+        Serial.println(drehkorrekt);
+    #endif
+
 }

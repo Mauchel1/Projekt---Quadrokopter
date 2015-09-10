@@ -39,6 +39,10 @@
 //RX/TX
   #define CE_PIN   9
   #define CSN_PIN 10
+//PID_REGLER
+  #define P_FAKTOR_X 1
+  #define P_FAKTOR_Y 1
+  #define P_FAKTOR_Z 1
 //LED
 //TODO
 

@@ -26,15 +26,16 @@ map(value, fromLow, fromHigh, toLow, toHigh)
 // Fernbedienung_Poti(); // Nimmt die Fernbedienungsdaten ohne Senden+Empfangen aus Poti entgegen
 
 //**************DEBUGGING*************** 
-  #define debug // um debugging generell einzuschalten
+//  #define debug // um debugging generell einzuschalten
 
 //  #define acc_debug // serielle ausgabe accelerometer/gyroskop
 //  #define acc_stabil_debug // serielle ausgabe stabile acc/gyro
 //  #define rxtx_debug //Fernbedienung - empfangene daten
 //  #define motor_debug //die 4 Motorwerte, die rausgehen
 //  #define winkel_debug // die beiden Sollwinkel und die vorhandenen winkel x,y
+//  #define korrekt_debug // die 3 Korrekturwerte der Motoren Nick, Kipp, Dreh
 
-  #define seriell_Fernbedienung // Serielles Empfangen der Fernbedienungsdaten
+//  #define seriell_Fernbedienung // Serielles Empfangen der Fernbedienungsdaten
 
 //*****************DEKLARATIONEN*****************
 //Accelerometer
@@ -69,6 +70,10 @@ map(value, fromLow, fromHigh, toLow, toHigh)
   int kippkorrekt = 0;
   int drehkorrekt = 0;
   
+  int soll_nick = 0;
+  int soll_kipp = 0;
+  int soll_dreh = 0;
+  
 //Lage
   float winkel[4] = {0.0 , 0.0 , 0.0 , 0.0}; // 0-XIST, 1-YIST, 2-XSOLL, 3-YSOLL
   int schub = MOTOR_STOP;
@@ -101,11 +106,10 @@ void loop(){
     
 // **************RX/TX****************
     #ifndef seriell_Fernbedienung
-        empfangen();    
+//        empfangen();    
+        Fernbedienung_Poti(); //Muss auskommentiert sein im Flugmodus
     #endif     
     
-    //Fernbedienung_Poti(); //Muss auskommentiert sein im Flugmodus
-   
     #ifdef seriell_Fernbedienung
         serielle_Fernbedienung();
     #endif     
@@ -208,18 +212,30 @@ float mittelwert (int16_t daten[], int anzahl){
 
 void berechnen(){
         
-    winkelberechnung();
-    
     schub = map(fernbedienung[1], FB_1_MIN, FB_1_MAX, SCHUB_MIN, SCHUB_MAX);
-    nickkorrekt = map(fernbedienung[3], FB_3_MIN, FB_3_MAX, NICK_MIN, NICK_MAX);// SENSIBEL_NICK;
-    kippkorrekt = map(fernbedienung[2], FB_2_MIN, FB_2_MAX, KIPP_MIN, KIPP_MAX);// SENSIBEL_KIPP;
-    drehkorrekt = map(fernbedienung[0], FB_0_MIN, FB_0_MAX, DREH_MIN, DREH_MAX);// SENSIBEL_DREH;
+    soll_nick = map(fernbedienung[3], FB_3_MIN, FB_3_MAX, NICK_MIN, NICK_MAX);// SENSIBEL_NICK;
+    soll_kipp = map(fernbedienung[2], FB_2_MIN, FB_2_MAX, KIPP_MIN, KIPP_MAX);// SENSIBEL_KIPP;
+    soll_dreh = map(fernbedienung[0], FB_0_MIN, FB_0_MAX, DREH_MIN, DREH_MAX);// SENSIBEL_DREH;
+    
+    winkelberechnung();
+    regelung();
     
     if (schub > EINSCHALTSPEED){
-        motor_1_wert = schub; //- nickkorrekt + kippkorrekt + drehkorrekt;
-        motor_2_wert = schub; //- nickkorrekt - kippkorrekt - drehkorrekt;
-        motor_3_wert = schub; //+ nickkorrekt + kippkorrekt - drehkorrekt;
-        motor_4_wert = schub; //+ nickkorrekt - kippkorrekt + drehkorrekt;
+        motor_1_wert = schub - nickkorrekt + kippkorrekt ;//+ drehkorrekt;
+        if (motor_1_wert > SCHUB_MAX-1) motor_1_wert = SCHUB_MAX-1;
+        else if (motor_1_wert < EINSCHALTSPEED) motor_1_wert = EINSCHALTSPEED;
+        
+        motor_2_wert = schub - nickkorrekt - kippkorrekt ;//- drehkorrekt;
+        if (motor_2_wert > SCHUB_MAX-1) motor_2_wert = SCHUB_MAX-1;
+        else if (motor_2_wert < EINSCHALTSPEED) motor_2_wert = EINSCHALTSPEED;
+        
+        motor_3_wert = schub + nickkorrekt + kippkorrekt ;//- drehkorrekt;
+        if (motor_3_wert > SCHUB_MAX-1) motor_3_wert = SCHUB_MAX-1;
+        else if (motor_3_wert < EINSCHALTSPEED) motor_3_wert = EINSCHALTSPEED;
+        
+        motor_4_wert = schub + nickkorrekt - kippkorrekt ;//+ drehkorrekt;
+        if (motor_4_wert > SCHUB_MAX-1) motor_4_wert = SCHUB_MAX-1;
+        else if (motor_4_wert < EINSCHALTSPEED) motor_4_wert = EINSCHALTSPEED;
     }
     else {
         motor_1_wert = MOTOR_STOP;
@@ -246,5 +262,15 @@ void winkelberechnung(){//TODO
     winkel[1] = winkel[1] * (180.0/PI);
 }
 
+void regelung(){
+    p_regler();
+//    i_regler(); TODO
+//    d_regler(); TODO
+}
 
+void p_regler(){
+    nickkorrekt = (winkel[2] - winkel[0])*P_FAKTOR_X; //SOLL MINUS IST
+    kippkorrekt = (winkel[3] - winkel[1])*P_FAKTOR_Y; //SOLL MINUS IST
+    //drehkorrekt = ; TODO
+}
 

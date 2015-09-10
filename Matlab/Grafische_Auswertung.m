@@ -108,18 +108,19 @@ while i > 0
     
     neue_Daten = find(Serial_Data == 9); % alle tabs raussuchen, nach jedem Tab kommen neue werte
 
+    if (length(neue_Daten) > 6) 
     Data = ([ 
-    str2num(char(Serial_Data((neue_Daten(1)+1):(neue_Daten(2)-1)))'),
-    str2num(char(Serial_Data((neue_Daten(2)+1):(neue_Daten(3)-1)))'),
-    str2num(char(Serial_Data((neue_Daten(3)+1):(neue_Daten(4)-1)))'),
-    str2num(char(Serial_Data((neue_Daten(4)+1):(neue_Daten(5)-1)))'),
-    str2num(char(Serial_Data((neue_Daten(5)+1):(neue_Daten(6)-1)))'),
-    str2num(char(Serial_Data((neue_Daten(6)+1):(neue_Daten(7)-1)))'),
-    ]);
-
-    plot3([Data(1),0],[Data(2),0],[Data(3),0],'Marker','+','MarkerSize',10); 
-    hold on;
-    plot3([Data(1),0],[Data(2),0],[Data(3),0],'Marker','+','MarkerSize',10); 
+    str2num(char(Serial_Data((neue_Daten(1)+1):(neue_Daten(2)-1)))'), %Accel x
+    str2num(char(Serial_Data((neue_Daten(2)+1):(neue_Daten(3)-1)))'), %Accel y
+    str2num(char(Serial_Data((neue_Daten(3)+1):(neue_Daten(4)-1)))'), %Accel z
+    str2num(char(Serial_Data((neue_Daten(4)+1):(neue_Daten(5)-1)))'), %Gyro x
+    str2num(char(Serial_Data((neue_Daten(5)+1):(neue_Daten(6)-1)))'), %Gyro y
+    str2num(char(Serial_Data((neue_Daten(6)+1):(neue_Daten(7)-1)))'), %Gyro z
+    ])
+    end
+    plot3([Data(1),0],[Data(2),0],[Data(3),0],'Marker','+','MarkerSize',10); %Accel  (G-Vector)
+    hold on;    
+    plot3([Data(4),0],[Data(5),0],[Data(6),0],'g','Marker','.','MarkerSize',10); % Gyro
     grid on;
     hold off;
     title('Positionen');
@@ -132,6 +133,21 @@ while i > 0
     set(handles.text1,'String', Data(1)); 
     set(handles.text2,'String', Data(2)); 
     set(handles.text3,'String', Data(3)); 
+    
+    
+    set(handles.text6,'String', Data(1)/16384); %x
+    set(handles.text7,'String', Data(2)/16384); %y
+    set(handles.text8,'String', Data(3)/16384); %z
+    
+    winkel1 = atan((Data(3)/16384)/sqrt((Data(2)/16384)^2+(Data(1)/16384)^2));
+    winkel2 = atan((Data(2)/16384)/sqrt((Data(3)/16384)^2+(Data(1)/16384)^2));
+  
+    set(handles.text9,'String', winkel1); 
+    set(handles.text10,'String', winkel2); 
+    
+    set(handles.text11,'String', winkel1*(180/pi)); 
+    set(handles.text12,'String', winkel2*(180/pi)); 
+    
     i = get(handles.Stop_Slider,'Value');
 end
     fclose(s);
