@@ -5,7 +5,7 @@
   #define MOTOR3 6 //PIN
   #define MOTOR4 7 //PIN
   #define MOTOR_STOP 0
-  #define EINSCHALTSPEED 25
+  #define EINSCHALTSPEED 15
   #define SENSIBEL_NICK 8 // je näher gegen 1 desto stärkere Reaktion
   #define SENSIBEL_KIPP 8
   #define SENSIBEL_DREH 8
@@ -40,9 +40,13 @@
   #define CE_PIN   9
   #define CSN_PIN 10
 //PID_REGLER
+  #define STACKLAN 20
   #define P_FAKTOR_X 1
-  #define P_FAKTOR_Y 1
+  #define P_FAKTOR_Y -1
   #define P_FAKTOR_Z 1
+  #define I_FAKTOR_X 1
+  #define I_FAKTOR_Y -1
+  #define I_FAKTOR_Z 1
 //LED
 //TODO
 
