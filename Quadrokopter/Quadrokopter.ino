@@ -21,6 +21,8 @@ map(value, fromLow, fromHigh, toLow, toHigh)
 #include <MPU6050.h> // Accelerometer
 #include <Wire.h> // für Accelerometer
 
+#include <PID_v1.h> //PID Control
+
 //**************TESTFUNKTIONEN*************
 // unten im Code im Mainloop einschalten (RX/TX)
 // Fernbedienung_Poti(); // Nimmt die Fernbedienungsdaten ohne Senden+Empfangen aus Poti entgegen
@@ -66,27 +68,24 @@ int motor_3_wert;
 int motor_4_wert;
 
 //Korrekturwerte
-int nickkorrekt = 0;
-int kippkorrekt = 0;
-int drehkorrekt = 0;
+double nickkorrekt = 0;
+double kippkorrekt = 0;
+double drehkorrekt = 0;
 
-int soll_nick = 0;
-int soll_kipp = 0;
-int soll_dreh = 0;
+double soll_nick = 0;
+double soll_kipp = 0;
+double soll_dreh = 0;
 
 //Lage
 float winkel[4] = {0.0 , 0.0 , 0.0 , 0.0}; // 0-XIST, 1-YIST, 2-XSOLL, 3-YSOLL
 int schub = MOTOR_STOP;
 
 //PID-Regler
-int nickko[STACKLAN] = {0};
-int kippko[STACKLAN] = {0};
-int AbweichungX = 0;
-int AbweichungY = 0;
-int Stackindex = 0;
-int summenindex = 0;
-int nickkosum = 0;
-int kippkosum = 0;
+double AbweichungX = 0;
+double AbweichungY = 0;
+//PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, Direction)
+PID NickPID(&AbweichungX, &nickkorrekt, &soll_nick, Kp, Ki, Kd, DIRECT);
+PID KippPID(&AbweichungY, &kippkorrekt, &soll_kipp, Kp, Ki, Kd, DIRECT);
 
 //RX/TX
 const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
@@ -102,6 +101,8 @@ void setup() {
   setup_accelgyro();
   setup_motor();
   setup_RxTx();
+  NickPID.SetMode(AUTOMATIC);
+  KippPID.SetMode(AUTOMATIC);
 }
 
 //*************LOOP*******************
@@ -278,39 +279,7 @@ void regelung() {
   drehkorrekt = 0;
   AbweichungX = winkel[2] - winkel[0];
   AbweichungY = winkel[3] - winkel[1];
-  p_regler();
-  i_regler();
-  //    d_regler(); TODO
-  if (nickkorrekt > NICK_MAX) nickkorrekt = NICK_MAX;
-  else if (nickkorrekt < NICK_MIN) nickkorrekt = NICK_MIN;
-  if (kippkorrekt > KIPP_MAX) kippkorrekt = KIPP_MAX;
-  else if (kippkorrekt < KIPP_MIN) kippkorrekt = KIPP_MIN;
-  if (drehkorrekt > DREH_MAX) drehkorrekt = DREH_MAX;
-  else if (drehkorrekt < DREH_MIN) drehkorrekt = DREH_MIN;
+  NickPID.Compute();
+  KippPID.Compute();
+//  SetOutputLimits(min, max)//TODO
 }
-
-void p_regler() {
-  nickkorrekt = (AbweichungX) * P_FAKTOR_X; //SOLL MINUS IST
-  kippkorrekt = (AbweichungY) * P_FAKTOR_Y; //SOLL MINUS IST
-  //drehkorrekt = ; TODO
-}
-
-void i_regler() {
-  nickko[Stackindex] = AbweichungX; //aktuelle Abweichung in den Stack speichern
-  for (summenindex = 0; summenindex < STACKLAN; summenindex ++) {
-    nickkosum = nickkosum + nickko[summenindex]; // alle Werte aufsummieren
-  } // alle Werte aufsummieren
-  nickkorrekt = nickkorrekt + ((nickkosum / STACKLAN ) * I_FAKTOR_X);
-
-  kippko[Stackindex] = AbweichungY; //aktuelle Abweichung in den Stack speichern
-  for (summenindex = 0; summenindex < STACKLAN; summenindex ++) {
-    kippkosum = kippkosum + kippko[summenindex]; // alle Werte aufsummieren
-  }
-  kippkorrekt = kippkorrekt + ((kippkosum / STACKLAN ) * I_FAKTOR_Y);
-
-  (Stackindex >= STACKLAN - 1) ? Stackindex = 0 : Stackindex++;
-  nickkosum = 0;
-  kippkosum = 0;
-  //drehkorrekt = ; TODO
-}
-

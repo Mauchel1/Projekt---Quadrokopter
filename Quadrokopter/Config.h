@@ -40,13 +40,9 @@
   #define CE_PIN   9
   #define CSN_PIN 10
 //PID_REGLER
-  #define STACKLAN 70 // für I-Regler
-  #define P_FAKTOR_X 0.2
-  #define P_FAKTOR_Y -0.2
-  #define P_FAKTOR_Z 0.2
-  #define I_FAKTOR_X 0.05
-  #define I_FAKTOR_Y -0.05
-  #define I_FAKTOR_Z 0.05
+  #define Kp 0
+  #define Ki 0
+  #define Kd 0
 //LED
 //TODO
 
