@@ -56,7 +56,7 @@ void debugging(){
         Serial.println(winkel[1]);
     #endif
     #ifdef korrekt_debug  
-        Serial.print("Nickkorrekt = ");      
+        Serial.print("  Nickkorrekt = ");      
         Serial.print(nickkorrekt);
         Serial.print("\tKippkorrekt = ");
         Serial.print(kippkorrekt);

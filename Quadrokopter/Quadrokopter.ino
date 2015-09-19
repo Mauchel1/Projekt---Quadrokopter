@@ -81,6 +81,8 @@ int schub = MOTOR_STOP;
 //PID-Regler
 int nickko[STACKLAN] = {0};
 int kippko[STACKLAN] = {0};
+int AbweichungX = 0;
+int AbweichungY = 0;
 int Stackindex = 0;
 int summenindex = 0;
 int nickkosum = 0;
@@ -271,29 +273,40 @@ void winkelberechnung() { //TODO
 }
 
 void regelung() {
+  nickkorrekt = 0;
+  kippkorrekt = 0;
+  drehkorrekt = 0;
+  AbweichungX = winkel[2] - winkel[0];
+  AbweichungY = winkel[3] - winkel[1];
   p_regler();
   i_regler();
   //    d_regler(); TODO
+  if (nickkorrekt > NICK_MAX) nickkorrekt = NICK_MAX;
+  else if (nickkorrekt < NICK_MIN) nickkorrekt = NICK_MIN;
+  if (kippkorrekt > KIPP_MAX) kippkorrekt = KIPP_MAX;
+  else if (kippkorrekt < KIPP_MIN) kippkorrekt = KIPP_MIN;
+  if (drehkorrekt > DREH_MAX) drehkorrekt = DREH_MAX;
+  else if (drehkorrekt < DREH_MIN) drehkorrekt = DREH_MIN;
 }
 
 void p_regler() {
-  nickkorrekt = (winkel[2] - winkel[0]) * P_FAKTOR_X; //SOLL MINUS IST
-  kippkorrekt = (winkel[3] - winkel[1]) * P_FAKTOR_Y; //SOLL MINUS IST
+  nickkorrekt = (AbweichungX) * P_FAKTOR_X; //SOLL MINUS IST
+  kippkorrekt = (AbweichungY) * P_FAKTOR_Y; //SOLL MINUS IST
   //drehkorrekt = ; TODO
 }
 
 void i_regler() {
-  nickko[Stackindex] = nickkorrekt; //aktuellen Wert in den Stack speichern
+  nickko[Stackindex] = AbweichungX; //aktuelle Abweichung in den Stack speichern
   for (summenindex = 0; summenindex < STACKLAN; summenindex ++) {
     nickkosum = nickkosum + nickko[summenindex]; // alle Werte aufsummieren
   } // alle Werte aufsummieren
-  nickkorrekt = nickkorrekt + (nickkosum * I_FAKTOR_X);
+  nickkorrekt = nickkorrekt + ((nickkosum / STACKLAN ) * I_FAKTOR_X);
 
-  kippko[Stackindex] = kippkorrekt; //aktuellen Wert in den Stack speichern
+  kippko[Stackindex] = AbweichungY; //aktuelle Abweichung in den Stack speichern
   for (summenindex = 0; summenindex < STACKLAN; summenindex ++) {
     kippkosum = kippkosum + kippko[summenindex]; // alle Werte aufsummieren
   }
-  kippkorrekt = kippkorrekt + (kippkosum * I_FAKTOR_Y);
+  kippkorrekt = kippkorrekt + ((kippkosum / STACKLAN ) * I_FAKTOR_Y);
 
   (Stackindex >= STACKLAN - 1) ? Stackindex = 0 : Stackindex++;
   nickkosum = 0;
