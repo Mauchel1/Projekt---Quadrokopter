@@ -40,9 +40,9 @@
   #define CE_PIN   9
   #define CSN_PIN 10
 //PID_REGLER
-  #define Kp 0
-  #define Ki 0
-  #define Kd 0
+//  #define Kp 5
+//  #define Ki 0.01
+//  #define Kd 0.01
 //LED
 //TODO
 

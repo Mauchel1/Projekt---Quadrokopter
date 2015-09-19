@@ -28,14 +28,14 @@ map(value, fromLow, fromHigh, toLow, toHigh)
 // Fernbedienung_Poti(); // Nimmt die Fernbedienungsdaten ohne Senden+Empfangen aus Poti entgegen
 
 //**************DEBUGGING***************
-//  #define debug // um debugging generell einzuschalten
+  #define debug // um debugging generell einzuschalten
 
 //  #define acc_debug // serielle ausgabe accelerometer/gyroskop
 //  #define acc_stabil_debug // serielle ausgabe stabile acc/gyro
 //  #define rxtx_debug //Fernbedienung - empfangene daten
 //  #define motor_debug //die 4 Motorwerte, die rausgehen
 //  #define winkel_debug // die beiden Sollwinkel und die vorhandenen winkel x,y
-//  #define korrekt_debug // die 3 Korrekturwerte der Motoren Nick, Kipp, Dreh
+  #define korrekt_debug // die 3 Korrekturwerte der Motoren Nick, Kipp, Dreh
 
 //  #define seriell_Fernbedienung // Serielles Empfangen der Fernbedienungsdaten
 
@@ -77,15 +77,18 @@ double soll_kipp = 0;
 double soll_dreh = 0;
 
 //Lage
-float winkel[4] = {0.0 , 0.0 , 0.0 , 0.0}; // 0-XIST, 1-YIST, 2-XSOLL, 3-YSOLL
+double winkel[4] = {0.0 , 0.0 , 0.0 , 0.0}; // 0-XIST, 1-YIST, 2-XSOLL, 3-YSOLL
 int schub = MOTOR_STOP;
 
 //PID-Regler
 double AbweichungX = 0;
 double AbweichungY = 0;
+double Kp = 10;
+double Ki = 0;
+double Kd = 0;
 //PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, Direction)
-PID NickPID(&AbweichungX, &nickkorrekt, &soll_nick, Kp, Ki, Kd, DIRECT);
-PID KippPID(&AbweichungY, &kippkorrekt, &soll_kipp, Kp, Ki, Kd, DIRECT);
+PID NickPID(&winkel[0], &nickkorrekt, &soll_nick, Kp, Ki, Kd, DIRECT);
+PID KippPID(&winkel[1], &kippkorrekt, &soll_kipp, Kp, Ki, Kd, DIRECT);
 
 //RX/TX
 const uint64_t pipe = 0xE8E8F0F0E1LL; // Define the transmit pipe
@@ -103,6 +106,8 @@ void setup() {
   setup_RxTx();
   NickPID.SetMode(AUTOMATIC);
   KippPID.SetMode(AUTOMATIC);
+  NickPID.SetOutputLimits(0,600);
+  KippPID.SetOutputLimits(0,600);
 }
 
 //*************LOOP*******************
@@ -274,12 +279,11 @@ void winkelberechnung() { //TODO
 }
 
 void regelung() {
-  nickkorrekt = 0;
-  kippkorrekt = 0;
-  drehkorrekt = 0;
+//  nickkorrekt = 0;
+//  kippkorrekt = 0;
+//  drehkorrekt = 0;
   AbweichungX = winkel[2] - winkel[0];
   AbweichungY = winkel[3] - winkel[1];
-  NickPID.Compute();
+  NickPID.Compute();        
   KippPID.Compute();
-//  SetOutputLimits(min, max)//TODO
 }
